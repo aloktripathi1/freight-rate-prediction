@@ -1,0 +1,10 @@
+{
+  "rows": 4853,
+  "mae": 134.67021245690762,
+  "rmse": 656.3930570977172,
+  "mean_signed_error": -50.40613074969816,
+  "median_absolute_error": 48.56230701251752,
+  "p90_absolute_error": 179.70522393906663,
+  "p95_absolute_error": 285.66411994414506,
+  "p99_absolute_error": 1728.8568209019804
+}

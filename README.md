@@ -350,7 +350,7 @@ This trains the final model on all labeled development data and regenerates:
 
 ```text
 final_model/model_pipeline.joblib
-validation_predictions.csv
+predictions/validation_predictions.csv
 final_model/config.json
 final_model/prediction_summary.json
 ```
@@ -361,7 +361,7 @@ Verified against a clean install of `requirements.txt` in a fresh virtual enviro
 
 ```bash
 python score.py \
-    --predictions validation_predictions.csv \
+    --predictions predictions/validation_predictions.csv \
     --december-predictions predictions/december-chart-inputs.csv
 ```
 

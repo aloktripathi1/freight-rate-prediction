@@ -29,7 +29,7 @@ MODEL_PATH = OUTPUT_DIR / "model_pipeline.joblib"
 CONFIG_PATH = OUTPUT_DIR / "config.json"
 SUMMARY_PATH = OUTPUT_DIR / "prediction_summary.json"
 
-SUBMISSION_PATH = ROOT / "validation_predictions.csv"
+SUBMISSION_PATH = ROOT / "predictions" / "validation_predictions.csv"
 
 
 # ============================================================

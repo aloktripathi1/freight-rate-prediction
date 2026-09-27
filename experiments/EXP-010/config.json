@@ -1,0 +1,66 @@
+{
+  "experiment": "EXP-010",
+  "original_target": "posted_rate",
+  "model_target": {
+    "name": "log_posted_rate_per_mile",
+    "formula": "log(posted_rate / distance)"
+  },
+  "prediction_reconstruction": "exp(predicted_log_rate_per_mile) * distance",
+  "id_column": "load_id",
+  "date_column": "date",
+  "feature_columns": [
+    "pickup",
+    "delivery",
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "equipment",
+    "weight",
+    "date",
+    "market_index",
+    "quote_signal"
+  ],
+  "model_feature_columns": [
+    "pickup",
+    "delivery",
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "equipment",
+    "weight",
+    "market_index",
+    "quote_signal"
+  ],
+  "categorical_columns": [
+    "pickup",
+    "delivery",
+    "equipment"
+  ],
+  "numerical_columns": [
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "weight",
+    "market_index",
+    "quote_signal"
+  ],
+  "preprocessing": {
+    "numeric_imputation": "median",
+    "categorical_imputation": "most_frequent",
+    "one_hot_handle_unknown": "ignore",
+    "negative_weight_handling": "weight < 0 -> NaN"
+  },
+  "model": {
+    "type": "ExtraTreesRegressor",
+    "n_estimators": 100,
+    "min_samples_leaf": 5,
+    "random_state": 42,
+    "n_jobs": -1
+  }
+}

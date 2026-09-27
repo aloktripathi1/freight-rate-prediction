@@ -1,0 +1,29 @@
+{
+  "experiment": "EXP-010",
+  "description": "Log rate-per-mile target with Random Forest min_samples_leaf=10",
+  "seed": 42,
+  "split_date": "2025-10-01",
+  "validation_end_date": "2025-11-01",
+  "train_rows": 43147,
+  "validation_rows": 4853,
+  "negative_weights_corrected": 292,
+  "training_time_seconds": 39.29600167274475,
+  "target_formula": "log(posted_rate / distance)",
+  "inverse_formula": "exp(predicted_log_rpm)",
+  "final_prediction_formula": "predicted_rpm * distance",
+  "train_metrics_posted_rate": {
+    "mae": 85.1750255880695,
+    "rmse": 552.4895022333851,
+    "r2": 0.8609581187395465
+  },
+  "validation_metrics_posted_rate": {
+    "mae": 124.91830706489785,
+    "rmse": 656.4085076035516,
+    "r2": 0.8155896067345669
+  },
+  "generalization_gap": {
+    "mae": 39.743281476828344,
+    "rmse": 103.91900537016647,
+    "r2": 0.0453685120049796
+  }
+}

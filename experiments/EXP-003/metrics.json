@@ -1,0 +1,25 @@
+{
+  "experiment": "EXP-003",
+  "description": "Negative weight correction + RF min_samples_leaf=5",
+  "seed": 42,
+  "split_date": "2025-10-01",
+  "train_rows": 43147,
+  "validation_rows": 4853,
+  "negative_weights_corrected": 292,
+  "training_time_seconds": 39.486103534698486,
+  "train_metrics": {
+    "mae": 93.88474832178717,
+    "rmse": 506.01294017143056,
+    "r2": 0.8833671681352504
+  },
+  "validation_metrics": {
+    "mae": 141.90261163736562,
+    "rmse": 662.5732537295278,
+    "r2": 0.8121095127073943
+  },
+  "generalization_gap": {
+    "mae": 48.01786331557845,
+    "rmse": 156.56031355809722,
+    "r2": 0.07125765542785611
+  }
+}

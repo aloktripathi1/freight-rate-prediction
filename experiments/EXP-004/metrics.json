@@ -1,0 +1,26 @@
+{
+  "experiment": "EXP-004",
+  "description": "Predict rate per mile and reconstruct posted rate",
+  "seed": 42,
+  "split_date": "2025-10-01",
+  "validation_end_date": "2025-11-01",
+  "train_rows": 43147,
+  "validation_rows": 4853,
+  "negative_weights_corrected": 292,
+  "training_time_seconds": 48.34000873565674,
+  "train_metrics_posted_rate": {
+    "mae": 89.12140667448303,
+    "rmse": 504.2694269303175,
+    "r2": 0.8841695213506525
+  },
+  "validation_metrics_posted_rate": {
+    "mae": 134.67021245690762,
+    "rmse": 656.3930570977172,
+    "r2": 0.8155982879149342
+  },
+  "generalization_gap": {
+    "mae": 45.548805782424594,
+    "rmse": 152.12363016739977,
+    "r2": 0.06857123343571836
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "experiment": "EXP-007",
+  "description": "Rate-per-mile target with calendar/time features",
+  "seed": 42,
+  "split_date": "2025-10-01",
+  "validation_end_date": "2025-11-01",
+  "train_rows": 43147,
+  "validation_rows": 4853,
+  "negative_weights_corrected": 292,
+  "training_time_seconds": 73.02139091491699,
+  "temporal_features": [
+    "month",
+    "day_of_week",
+    "day_of_month",
+    "day_of_year",
+    "days_since_start"
+  ],
+  "train_metrics_posted_rate": {
+    "mae": 85.78551391186998,
+    "rmse": 500.2593113007369,
+    "r2": 0.8860044400883013
+  },
+  "validation_metrics_posted_rate": {
+    "mae": 205.06904612512923,
+    "rmse": 672.9505030378848,
+    "r2": 0.8061779263189898
+  },
+  "generalization_gap": {
+    "mae": 119.28353221325925,
+    "rmse": 172.6911917371479,
+    "r2": 0.07982651376931149
+  }
+}

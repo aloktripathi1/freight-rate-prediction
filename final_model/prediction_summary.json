@@ -1,0 +1,13 @@
+{
+  "training_rows": 48000,
+  "validation_rows": 12000,
+  "negative_training_weights_corrected": 292,
+  "negative_validation_weights_corrected": 145,
+  "training_time_seconds": 30.008359670639038,
+  "prediction_summary": {
+    "min": 178.71359810006416,
+    "median": 2002.8116203189363,
+    "mean": 2325.3062926931993,
+    "max": 6707.41997809575
+  }
+}

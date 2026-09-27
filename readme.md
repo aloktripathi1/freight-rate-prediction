@@ -7,7 +7,7 @@ See `Freight_Rate_ML_Assessment.pdf` for the assessment instructions.
 1. Train and validate your model using `data/train_test.csv`.
 2. Predict every load in `data/validation.csv`. Each load has a unique `load_id`.
 3. Fill the matching `predicted_rate` values in `data/validation_predictions_template.csv` and save it as `validation_predictions.csv`.
-4. Predict every row in `data/december_chart_inputs.csv` by filling its `predicted_rate` column.
+4. Predict every row in `data/december_chart_inputs.csv` by filling it's `predicted_rate` column.
 5. Install the scorer requirements and run:
 
 ```bash

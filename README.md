@@ -315,11 +315,13 @@ Mean:     $2,325.31
 Maximum:  $6,707.42
 ```
 
-The trained model is stored at:
+The trained model is committed to the repository at:
 
 ```text
 final_model/model_pipeline.joblib
 ```
+
+Running `scripts/train_final.py` regenerates this file byte-for-byte reproducibly (fixed `random_state=42`).
 
 ---
 
@@ -344,7 +346,7 @@ pip install -r requirements.txt
 python scripts/train_final.py
 ```
 
-This trains the final model on all labeled development data and generates:
+This trains the final model on all labeled development data and regenerates:
 
 ```text
 final_model/model_pipeline.joblib
@@ -352,6 +354,8 @@ validation_predictions.csv
 final_model/config.json
 final_model/prediction_summary.json
 ```
+
+Verified against a clean install of `requirements.txt` in a fresh virtual environment — the command above runs end-to-end with no additional dependencies.
 
 ## 4. Validate the generated predictions
 

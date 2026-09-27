@@ -5,3 +5,4 @@ __pycache__/
 venv/
 .env
 *.joblib
+!final_model/model_pipeline.joblib

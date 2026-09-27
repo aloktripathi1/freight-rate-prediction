@@ -284,7 +284,7 @@ Across the three folds:
 \text{Mean }R^2 = 0.8230.
 \]
 
-The relatively small MAE variation across folds supported using the configuration from EXP-011 for final training.
+The relatively small MAE variation across folds supported using the configuration from EXP-011 for final training. Note that these are expanding-window folds, so each later fold's training set is a superset of the earlier ones (all three share the January--June data); the folds are therefore correlated rather than independent, and the reported standard deviation likely understates the true variability of the estimate. A blocked or fully disjoint temporal split would give a more conservative measure of stability.
 
 \section{Final Model}
 

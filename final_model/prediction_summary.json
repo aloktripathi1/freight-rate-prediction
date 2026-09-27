@@ -3,11 +3,11 @@
   "validation_rows": 12000,
   "negative_training_weights_corrected": 292,
   "negative_validation_weights_corrected": 145,
-  "training_time_seconds": 30.008359670639038,
+  "training_time_seconds": 28.00732731819153,
   "prediction_summary": {
-    "min": 178.71359810006416,
+    "min": 178.7135981000641,
     "median": 2002.8116203189363,
-    "mean": 2325.3062926931993,
+    "mean": 2325.306292693199,
     "max": 6707.41997809575
   }
 }

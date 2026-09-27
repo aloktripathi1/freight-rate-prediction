@@ -1,6 +1,6 @@
 {
   "experiment": "EXP-011",
-  "description": "Log rate-per-mile target with Random Forest min_samples_leaf=20",
+  "description": "Log rate-per-mile target with ExtraTreesRegressor min_samples_leaf=20",
   "seed": 42,
   "split_date": "2025-10-01",
   "validation_end_date": "2025-11-01",

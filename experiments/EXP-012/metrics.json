@@ -1,0 +1,48 @@
+{
+  "experiment": "EXP-012",
+  "description": "Expanding-window temporal cross-validation of ExtraTrees log-RPM candidate",
+  "seed": 42,
+  "model": {
+    "type": "ExtraTreesRegressor",
+    "n_estimators": 100,
+    "min_samples_leaf": 20,
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "target": "log(posted_rate / distance)",
+  "prediction_reconstruction": "exp(predicted_log_rpm) * distance",
+  "negative_weights_corrected": 292,
+  "folds": [
+    {
+      "name": "fold_1",
+      "train_start": "2025-01-01",
+      "train_end": "2025-07-01",
+      "val_start": "2025-07-01",
+      "val_end": "2025-09-01"
+    },
+    {
+      "name": "fold_2",
+      "train_start": "2025-01-01",
+      "train_end": "2025-08-01",
+      "val_start": "2025-08-01",
+      "val_end": "2025-10-01"
+    },
+    {
+      "name": "fold_3",
+      "train_start": "2025-01-01",
+      "train_end": "2025-10-01",
+      "val_start": "2025-10-01",
+      "val_end": "2025-11-01"
+    }
+  ],
+  "aggregate": {
+    "mean_validation_mae": 121.13126792778924,
+    "std_validation_mae": 2.206127600265602,
+    "mean_validation_rmse": 633.7425434502039,
+    "std_validation_rmse": 17.399976240927913,
+    "mean_validation_r2": 0.8229670263322038,
+    "std_validation_r2": 0.005863325143862274,
+    "mean_mae_gap": 38.23365811947825,
+    "total_training_time_seconds": 57.809998989105225
+  }
+}

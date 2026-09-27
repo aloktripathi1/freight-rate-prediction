@@ -1,0 +1,29 @@
+{
+  "experiment": "EXP-008",
+  "description": "Explicit pickup-delivery route categorical feature + log RPM target",
+  "seed": 42,
+  "split_date": "2025-10-01",
+  "validation_end_date": "2025-11-01",
+  "train_rows": 43147,
+  "validation_rows": 4853,
+  "unique_routes": 4014,
+  "validation_known_route_percentage": 99.83515351329075,
+  "negative_weights_corrected": 292,
+  "training_time_seconds": 56.6718475818634,
+  "target": "log(posted_rate / distance)",
+  "train_metrics_posted_rate": {
+    "mae": 81.6074405788458,
+    "rmse": 534.2408802101144,
+    "r2": 0.8699914816736475
+  },
+  "validation_metrics_posted_rate": {
+    "mae": 133.76173356342426,
+    "rmse": 657.6401427940846,
+    "r2": 0.8148969301207485
+  },
+  "generalization_gap": {
+    "mae": 52.15429298457846,
+    "rmse": 123.3992625839702,
+    "r2": 0.055094551552898996
+  }
+}

@@ -362,7 +362,7 @@ Verified against a clean install of `requirements.txt` in a fresh virtual enviro
 ```bash
 python score.py \
     --predictions validation_predictions.csv \
-    --december-predictions december-chart-inputs.csv
+    --december-predictions predictions/december-chart-inputs.csv
 ```
 
 ---

@@ -1,0 +1,414 @@
+% ============================================================
+% Freight Rate Prediction - Spotter ML Engineer Assessment
+% Compile with pdfLaTeX on Overleaf
+% ============================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{siunitx}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    citecolor=black
+}
+
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.25em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=0.25em,topsep=0.3em}
+
+% Number sections as: 1. Title, 2. Title, etc.
+\renewcommand{\thesection}{\arabic{section}.}
+
+\newcommand{\modelname}{\texttt{ExtraTreesRegressor}}
+\newcommand{\mae}{\mathrm{MAE}}
+\newcommand{\rmse}{\mathrm{RMSE}}
+\newcommand{\rscore}{R^2}
+
+\title{\underline{\textbf{Freight Rate Prediction}}
+}
+\author{Alok Kumar Tripathi}
+\date{27 September 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This report describes the development of a freight-rate prediction model using the labeled development dataset covering January--October 2025. The main modeling decision was to predict freight rate per mile rather than total posted rate, with a logarithmic target transformation. A tree-ensemble model was progressively regularized and evaluated using chronological validation to simulate future prediction. The final selected configuration was an \modelname{} with 100 trees and \texttt{min\_samples\_leaf=20}, trained on \(\log(\text{posted\_rate}/\text{distance})\). Temporal cross-validation produced a mean validation MAE of \$121.13 with a standard deviation of \$2.21 across three future windows. The final model was retrained on all 48,000 labeled rows and generated predictions for all 12,000 rows of the supplied validation set. The provided scorer validated the submission structure and the 31-day December scenario successfully.
+\end{abstract}
+
+\section{Problem and Objective}
+
+The task is to predict \texttt{posted\_rate} for unseen freight loads. The labeled development data contains 48,000 rows from January 1 through October 31, 2025. The supplied final validation data contains 12,000 rows from November 1 through December 31, 2025.
+
+The goal was to build a reproducible modeling pipeline that:
+\begin{enumerate}
+    \item explores and cleans the development data,
+    \item uses a validation strategy consistent with the future-dated test set,
+    \item evaluates multiple modeling hypotheses,
+    \item avoids target leakage,
+    \item retrains the selected configuration on all labeled development data, and
+    \item produces the required \texttt{load\_id,predicted\_rate} submission file.
+\end{enumerate}
+
+\section{Data Understanding and EDA}
+
+\subsection{Dataset Structure}
+
+The development dataset contains the following fields:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Column} & \textbf{Role / description}\\
+\midrule
+\texttt{load\_id} & Load identifier; excluded from modeling\\
+\texttt{pickup} & Pickup city\\
+\texttt{delivery} & Delivery city\\
+\texttt{pickup\_lat}, \texttt{pickup\_lon} & Pickup coordinates\\
+\texttt{delivery\_lat}, \texttt{delivery\_lon} & Delivery coordinates\\
+\texttt{distance} & Load distance\\
+\texttt{equipment} & Equipment type\\
+\texttt{weight} & Load weight\\
+\texttt{date} & Load date\\
+\texttt{market\_index} & Market signal\\
+\texttt{quote\_signal} & Quote signal\\
+\texttt{posted\_rate} & Target\\
+\bottomrule
+\end{tabular}
+\caption{Development dataset fields.}
+\end{table}
+
+The development target was strongly related to distance. The exploratory analysis found a Pearson correlation of approximately 0.909 and a Spearman correlation of approximately 0.976 between distance and posted rate. The posted-rate distribution was right-skewed, with mean approximately \$2,374, median approximately \$2,031, and a maximum above \$25,000.
+
+Equipment also showed systematic differences in average rate per mile: approximately \$2.12 for Dry Van, \$2.30 for Flatbed, and \$2.38 for Reefer.
+
+\subsection{Missing and Invalid Values}
+
+Missing values were present in:
+\begin{itemize}
+    \item \texttt{weight}: 300 training rows,
+    \item \texttt{market\_index}: 374 training rows.
+\end{itemize}
+
+The validation set had missing values in both \texttt{weight} and \texttt{market\_index} as well.
+
+A separate data-quality inspection found 292 negative weight values in the labeled development data. Because negative freight weight is physically invalid, later experiments converted \texttt{weight < 0} to missing and allowed the preprocessing pipeline to impute it. This correction was evaluated explicitly in EXP-002.
+
+\subsection{Future-Dated Validation}
+
+A key characteristic of the assessment data is temporal ordering. The labeled development data ends on October 31, while the supplied validation data begins on November 1.
+
+Therefore, a random train/test split was not used as the primary validation strategy. The main internal holdout was:
+
+\[
+\text{Train: Jan--Sep 2025}
+\qquad
+\text{Validation: Oct 2025}.
+\]
+
+The final November--December validation set was kept untouched during model selection.
+
+\section{Modeling Strategy}
+
+\subsection{Baseline Representation}
+
+The initial model used:
+\begin{itemize}
+    \item pickup, delivery, equipment as categorical variables;
+    \item numeric features with median imputation;
+    \item categorical features with most-frequent imputation;
+    \item one-hot encoding with \texttt{handle\_unknown=ignore};
+    \item no numerical scaling because the initial models were tree ensembles;
+    \item raw date excluded from the model and used for chronological splitting.
+\end{itemize}
+
+The initial baseline was a Random Forest regressor.
+
+\subsection{Rate-per-Mile Target}
+
+The strongest modeling change was to predict rate per mile instead of total rate:
+
+\[
+r_i = \frac{\text{posted\_rate}_i}{\text{distance}_i}.
+\]
+
+The final successful formulation further modeled the logarithm:
+
+\[
+y_i = \log(r_i)
+= \log\left(
+\frac{\text{posted\_rate}_i}{\text{distance}_i}
+\right).
+\]
+
+At prediction time:
+
+\[
+\widehat{r}_i = \exp(\widehat{y}_i),
+\]
+
+followed by:
+
+\[
+\widehat{\text{posted\_rate}}_i
+=
+\widehat{r}_i \times \text{distance}_i.
+\]
+
+This formulation separates the basic scale effect of distance from the remaining variation in pricing intensity.
+
+\section{Experiment History}
+
+The experiments were intentionally incremental so that each major change could be interpreted independently.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{1.3cm}
+                >{\raggedright\arraybackslash}p{4.6cm}
+                >{\raggedright\arraybackslash}p{2.0cm}
+                >{\raggedright\arraybackslash}p{2.0cm}
+                >{\raggedright\arraybackslash}p{1.3cm}}
+\toprule
+\textbf{Exp.} & \textbf{Change} & \textbf{Oct MAE} & \textbf{Oct RMSE} & \textbf{Oct \(R^2\)}\\
+\midrule
+\endhead
+
+001 & Random Forest baseline; raw target & \$162.30 & \$690.70 & 0.7958\\
+002 & Negative weights \(\rightarrow\) missing & \$162.72 & \$691.21 & 0.7955\\
+003 & Random Forest, \texttt{min\_samples\_leaf=5} & \$141.90 & \$662.57 & 0.8121\\
+004 & Rate-per-mile target & \$134.67 & \$656.39 & 0.8156\\
+005 & Log rate-per-mile target & \$133.67 & \$657.74 & 0.8148\\
+006 & Historical target-derived pricing features & \$194.99 & \$677.84 & 0.8034\\
+007 & Calendar features & \$205.07 & \$672.95 & 0.8062\\
+008 & Explicit pickup-to-delivery route category & \$133.76 & \$657.64 & 0.8149\\
+009 & Extra Trees, \texttt{min\_samples\_leaf=5} & \$130.14 & \$658.35 & 0.8145\\
+010 & Extra Trees, \texttt{min\_samples\_leaf=10} & \$124.92 & \$656.41 & 0.8156\\
+011 & Extra Trees, \texttt{min\_samples\_leaf=20} & \textbf{\$122.53} & \textbf{\$653.30} & \textbf{0.8173}\\
+\bottomrule
+\end{longtable}
+
+\subsection{What the Experiments Showed}
+
+Several observations were important:
+
+\begin{itemize}
+    \item The raw Random Forest baseline had a large training/validation gap.
+    \item Regularization consistently improved future validation as \texttt{min\_samples\_leaf} increased from 5 to 20.
+    \item Predicting rate per mile improved the validation metrics compared with predicting total rate directly.
+    \item Log-transforming rate per mile gave the lowest October MAE among EXP-001--EXP-011, but the improvement over EXP-004 was small and RMSE/\(R^2\) moved slightly in the opposite direction.
+    \item Historical target-derived features degraded future performance despite high validation coverage, so they were removed.
+    \item Calendar features degraded future performance and were removed.
+    \item An explicit route categorical feature added negligible value; validation known-route coverage was 99.84\%.
+    \item Extra Trees produced lower MAE than the corresponding Random Forest configuration.
+\end{itemize}
+
+\section{Error Analysis}
+
+The strongest remaining error pattern was concentrated in the extreme upper tail of rate per mile.
+
+For the October holdout, the rate-per-mile distribution had:
+\[
+P_{99} \approx 3.29,
+\qquad
+P_{99.5} \approx 6.87,
+\qquad
+P_{99.9} \approx 10.13.
+\]
+
+The overall EXP-004 error analysis showed:
+\[
+\mae \approx \$134.67,
+\qquad
+\text{median absolute error} \approx \$48.56,
+\qquad
+P_{99}(\text{absolute error}) \approx \$1,728.86.
+\]
+
+The model also showed systematic underprediction:
+\[
+\text{mean signed error} \approx -\$50.41.
+\]
+
+High-distance loads had larger absolute errors than short loads. For example, October MAE increased from approximately \$33.90 for loads with distance at most 250 miles to approximately \$247.82 for loads above 2,000 miles.
+
+The extreme high-rate cases were generally not caused by unseen pickup or delivery categories. In the inspected October loads above \$6,000, pickup and delivery categories were already present in training.
+
+These diagnostics motivated the focus on target formulation and regularization rather than adding many more categorical features.
+
+\section{Temporal Cross-Validation}
+
+After the model family and regularization improved, continued tuning on a single October holdout risked overfitting the selection process to that month. Therefore, EXP-012 used expanding-window temporal cross-validation.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Fold} & \textbf{Training window} & \textbf{Validation window} & \textbf{MAE} & \(\rscore\)\\
+\midrule
+1 & Jan--Jun & Jul--Aug & \$122.28 & 0.8225\\
+2 & Jan--Jul & Aug--Sep & \$118.59 & 0.8290\\
+3 & Jan--Sep & Oct & \$122.53 & 0.8173\\
+\bottomrule
+\end{tabular}
+\caption{Chronological cross-validation for the selected configuration.}
+\end{table}
+
+Across the three folds:
+
+\[
+\text{Mean MAE} = \$121.13,
+\qquad
+\text{Std. MAE} = \$2.21,
+\]
+
+\[
+\text{Mean RMSE} = \$633.74,
+\qquad
+\text{Mean }R^2 = 0.8230.
+\]
+
+The relatively small MAE variation across folds supported using the configuration from EXP-011 for final training.
+
+\section{Final Model}
+
+The final model was fixed as:
+
+\begin{itemize}
+    \item Model: \modelname{}
+    \item Number of trees: 100
+    \item \texttt{min\_samples\_leaf}: 20
+    \item Random seed: 42
+    \item Target: \(\log(\text{posted\_rate}/\text{distance})\)
+    \item Negative weight handling: \texttt{weight < 0} \(\rightarrow\) NaN
+    \item Numeric missing values: median imputation
+    \item Categorical missing values: most-frequent imputation
+    \item Categorical encoding: one-hot, unknown categories ignored
+\end{itemize}
+
+The raw date was not used as a predictive feature in the final model.
+
+The model was then retrained on all 48,000 labeled development rows, covering January 1 through October 31, 2025.
+
+\section{Final Validation Predictions}
+
+The final model generated predictions for all 12,000 rows in the supplied validation set, covering November 1 through December 31, 2025.
+
+The resulting submission file is:
+
+\begin{center}
+\texttt{validation\_predictions.csv}
+\end{center}
+
+with exactly the required columns:
+
+\begin{center}
+\texttt{load\_id,predicted\_rate}.
+\end{center}
+
+Basic output diagnostics were:
+
+\begin{itemize}
+    \item Number of predictions: 12,000
+    \item Minimum predicted rate: \$178.71
+    \item Median predicted rate: \$2,002.81
+    \item Mean predicted rate: \$2,325.31
+    \item Maximum predicted rate: \$6,707.42
+\end{itemize}
+
+The final model artifact was saved as \texttt{final\_model/model\_pipeline.joblib}.
+
+\section{December Scenario}
+
+The supplied fixed December scenario keeps the load attributes constant and varies only the date. Because the final model intentionally does not use date as a model feature, identical model inputs produce the same prediction for each day.
+
+The generated December prediction was:
+
+\[
+\$803.92
+\]
+
+for each of the 31 December dates.
+
+This is a consequence of the final feature set rather than an interpolation or manually imposed daily rate.
+
+\begin{figure}[H]
+    \centering
+    \IfFileExists{candidate_december.png}{
+        \includegraphics[width=0.98\textwidth]{candidate_december.png}
+    }{
+        \fbox{
+            \parbox[c][5cm][c]{0.9\textwidth}{
+                \centering
+                \textbf{candidate\_december.png not found}\\[0.5em]
+                Upload the scorer-generated image from\\
+                \texttt{scorer\_results/candidate\_december.png}\\
+                to the same Overleaf project as this \texttt{.tex} file.
+            }
+        }
+    }
+    \caption{Fixed December 2025 scenario prediction chart generated by the supplied scorer.}
+\end{figure}
+
+\section{Submission Verification}
+
+The supplied scoring script was run against the final files.
+
+The scorer reported:
+
+\begin{verbatim}
+Validated 12,000 final predictions.
+Validated 31 fixed December predictions.
+Created chart: scorer_results/candidate_december.png
+Final validation metrics are calculated by Spotter after submission.
+\end{verbatim}
+
+Therefore, the local submission-format checks passed successfully. The hidden November--December prediction accuracy is not available from the local scorer; it is evaluated by Spotter after submission.
+
+\section{Conclusion}
+
+The modeling process converged on a relatively simple, reproducible solution.
+
+The most important improvements came from:
+\begin{enumerate}
+    \item choosing chronological validation rather than a random split,
+    \item modeling rate per mile instead of total posted rate,
+    \item applying a log transformation to rate per mile as a candidate formulation,
+    \item switching from Random Forest to Extra Trees, and
+    \item increasing tree regularization with \texttt{min\_samples\_leaf=20}.
+\end{enumerate}
+
+Several seemingly plausible additions---historical target-derived features, calendar features, and an explicit route category---did not improve future validation and were therefore excluded from the final pipeline.
+
+The final model was selected using temporal cross-validation and then retrained on all available labeled data. The resulting 12,000-row submission and 31-row December scenario both passed the provided scorer.
+
+\section*{Reproducibility}
+
+The implementation uses Python and scikit-learn. Experiment scripts, configuration files, metrics, and prediction artifacts are organized by experiment under \texttt{experiments/}, with the final pipeline under \texttt{final\_model/}.
+
+For the assessment submission, the repository should include:
+\begin{itemize}
+    \item source code and run instructions,
+    \item \texttt{validation\_predictions.csv},
+    \item this report,
+    \item \texttt{candidate\_december.png},
+    \item and the short Loom walkthrough.
+\end{itemize}
+
+\end{document}

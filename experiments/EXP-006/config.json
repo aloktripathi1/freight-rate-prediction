@@ -1,0 +1,102 @@
+{
+  "experiment": "EXP-006",
+  "target": "posted_rate_per_mile",
+  "prediction_reconstruction": "predicted_rate_per_mile * distance",
+  "historical_features": {
+    "route": [
+      "hist_route_rpm_mean",
+      "hist_route_rpm_count"
+    ],
+    "pickup": [
+      "hist_pickup_rpm_mean",
+      "hist_pickup_rpm_count"
+    ],
+    "delivery": [
+      "hist_delivery_rpm_mean",
+      "hist_delivery_rpm_count"
+    ],
+    "equipment": [
+      "hist_equipment_rpm_mean",
+      "hist_equipment_rpm_count"
+    ],
+    "global": [
+      "hist_global_rpm_mean"
+    ],
+    "leakage_rule": "Only observations from dates strictly before prediction date are used."
+  },
+  "id_column": "load_id",
+  "date_column": "date",
+  "base_feature_columns": [
+    "pickup",
+    "delivery",
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "equipment",
+    "weight",
+    "date",
+    "market_index",
+    "quote_signal"
+  ],
+  "model_feature_columns": [
+    "pickup",
+    "delivery",
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "equipment",
+    "weight",
+    "market_index",
+    "quote_signal",
+    "hist_global_rpm_mean",
+    "hist_route_rpm_mean",
+    "hist_route_rpm_count",
+    "hist_pickup_rpm_mean",
+    "hist_pickup_rpm_count",
+    "hist_delivery_rpm_mean",
+    "hist_delivery_rpm_count",
+    "hist_equipment_rpm_mean",
+    "hist_equipment_rpm_count"
+  ],
+  "categorical_columns": [
+    "pickup",
+    "delivery",
+    "equipment"
+  ],
+  "numerical_columns": [
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "weight",
+    "market_index",
+    "quote_signal",
+    "hist_global_rpm_mean",
+    "hist_route_rpm_mean",
+    "hist_route_rpm_count",
+    "hist_pickup_rpm_mean",
+    "hist_pickup_rpm_count",
+    "hist_delivery_rpm_mean",
+    "hist_delivery_rpm_count",
+    "hist_equipment_rpm_mean",
+    "hist_equipment_rpm_count"
+  ],
+  "preprocessing": {
+    "numeric_imputation": "median",
+    "categorical_imputation": "most_frequent",
+    "one_hot_handle_unknown": "ignore",
+    "negative_weight_handling": "weight < 0 -> NaN"
+  },
+  "model": {
+    "type": "RandomForestRegressor",
+    "n_estimators": 100,
+    "min_samples_leaf": 5,
+    "random_state": 42,
+    "n_jobs": -1
+  }
+}

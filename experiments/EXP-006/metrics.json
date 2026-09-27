@@ -1,0 +1,27 @@
+{
+  "experiment": "EXP-006",
+  "description": "Historical leakage-safe pricing features + RF rate-per-mile target",
+  "seed": 42,
+  "split_date": "2025-10-01",
+  "validation_end_date": "2025-11-01",
+  "train_rows": 43147,
+  "validation_rows": 4853,
+  "negative_weights_corrected": 292,
+  "historical_feature_generation_seconds": 1.0834550857543945,
+  "training_time_seconds": 89.34512829780579,
+  "train_metrics_posted_rate": {
+    "mae": 85.08795860617602,
+    "rmse": 496.46141062789314,
+    "r2": 0.8877287473771934
+  },
+  "validation_metrics_posted_rate": {
+    "mae": 194.9940447636558,
+    "rmse": 677.841820285224,
+    "r2": 0.8033501086279993
+  },
+  "generalization_gap": {
+    "mae": 109.90608615747979,
+    "rmse": 181.38040965733086,
+    "r2": 0.08437863874919416
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "experiment_id": "EXP-001",
+  "model": "RandomForestRegressor",
+  "random_seed": 42,
+  "train": {
+    "rows": 43147,
+    "start_date": "2025-01-01",
+    "end_date": "2025-09-30",
+    "mae": 50.02795207546298,
+    "rmse": 230.91828205713398,
+    "r2": 0.9757107441243864
+  },
+  "validation": {
+    "rows": 4853,
+    "start_date": "2025-10-01",
+    "end_date": "2025-10-31",
+    "mae": 162.3037294869153,
+    "rmse": 690.6976191360674,
+    "r2": 0.7958201363416186
+  },
+  "training_seconds": 150.76974499400012,
+  "features": [
+    "pickup",
+    "delivery",
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "equipment",
+    "weight",
+    "market_index",
+    "quote_signal"
+  ],
+  "numeric_features": [
+    "pickup_lat",
+    "pickup_lon",
+    "delivery_lat",
+    "delivery_lon",
+    "distance",
+    "weight",
+    "market_index",
+    "quote_signal"
+  ],
+  "categorical_features": [
+    "pickup",
+    "delivery",
+    "equipment"
+  ],
+  "git_commit": null
+}

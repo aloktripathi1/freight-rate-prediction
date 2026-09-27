@@ -1,0 +1,25 @@
+{
+  "experiment_id": "EXP-001",
+  "description": "Raw-feature Random Forest baseline",
+  "random_seed": 42,
+  "validation_strategy": "chronological",
+  "train_period": "2025-01-01 to 2025-09-30",
+  "validation_period": "2025-10-01 to 2025-10-31",
+  "date_used_for_split_only": true,
+  "target": "posted_rate",
+  "excluded_columns": [
+    "load_id"
+  ],
+  "model_parameters": {
+    "n_estimators": 100,
+    "random_state": 42,
+    "n_jobs": -1
+  },
+  "preprocessing": {
+    "numeric_imputation": "median",
+    "categorical_imputation": "most_frequent",
+    "categorical_encoding": "one_hot",
+    "handle_unknown": "ignore",
+    "scaling": false
+  }
+}
